@@ -56,14 +56,22 @@
     <br>
     <button id="updateButton">形状を更新</button><br>
     <br>
-    <button id="toggleAnimation">回転 on/off</button><br>
-    <br>
+    <label>
+      <input type="checkbox" id="animationCheckbox"> アニメーション
+    </label>
+    <label>
+      <input type="checkbox" id="gridCheckbox"> グリッド表示
+    </label><br>
     <button id="exportSTL">STL download</button>
   </div>
 
   <script>
     const scene = new THREE.Scene();
-    const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+    const aspectRatio = window.innerWidth / window.innerHeight; // アスペクト比を計算
+    const cameraWidth = 1000;  // カメラの幅を300に設定
+    const cameraHeight = cameraWidth / aspectRatio; // 高さをアスペクト比に基づいて計算
+    const camera = new THREE.OrthographicCamera(
+      cameraWidth / -2, cameraWidth / 2, cameraHeight / 2, cameraHeight / -2, 0.1, 1000);
 
     // ライトを追加
     const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
@@ -79,7 +87,8 @@
     renderer.setClearColor(0xffffff); // 背景色を白に設定
     document.body.appendChild(renderer.domElement);
 
-    camera.position.z = 300; // カメラの位置を少し遠ざける
+    camera.position.set(0, 600, 0); // カメラを真上から見下ろす位置に設定
+    camera.lookAt(scene.position); // シーンの中心を見るように設定
 
     // OrbitControlsの初期化
     const controls = new THREE.OrbitControls(camera, renderer.domElement);
@@ -88,11 +97,16 @@
     controls.enableZoom = true;
 
     let fan; // 扇風機全体のグループ
-    let animationEnabled = true; // アニメーションの状態を制御する変数
+    let animationEnabled = false; // アニメーションの状態を制御する変数
+    let gridEnabled = true; // グリッド表示の状態を制御する変数
+    let textMeshXArray = []; // X軸方向のテキストメッシュを格納する配列
+    let textMeshZArray = []; // Z軸方向のテキストメッシュを格納する配列
+
+    const bossHeight = parseFloat(document.getElementById("bossHeight").value);
 
     // X-Z平面にグリッドを表示
-    const gridSize = 250; // グリッドのサイズ
-    const gridDivisions = 10; // グリッドの分割数
+    const gridSize = 400; // グリッドのサイズ
+    const gridDivisions = 20; // グリッドの分割数
     const gridHelper = new THREE.GridHelper(gridSize, gridDivisions);
     scene.add(gridHelper);
 
@@ -119,18 +133,21 @@
 
         // X軸方向にテキストを配置
         textMeshX.position.x = textValue;
-        textMeshX.position.y = -2; // グリッドから少し浮かせる
+        textMeshX.position.y = -bossHeight + 2; // グリッドから少し浮かせる
         textMeshX.position.z = 0;
         textMeshX.rotation.x = -Math.PI / 2; // X軸を中心に90度回転
 
         // Z軸方向にテキストを配置
         textMeshZ.position.x = 0;
-        textMeshZ.position.y = -2; // グリッドから少し浮かせる
+        textMeshZ.position.y = -bossHeight + 2; // グリッドから少し浮かせる
         textMeshZ.position.z = textValue;
         textMeshZ.rotation.x = -Math.PI / 2; // X軸を中心に90度回転
 
         scene.add(textMeshX);
         scene.add(textMeshZ);
+
+        textMeshXArray.push(textMeshX); // 配列にテキストメッシュを追加
+        textMeshZArray.push(textMeshZ); // 配列にテキストメッシュを追加
       }
     });
 
@@ -267,12 +284,30 @@
     // 初期描画
     updateFan();
 
+    // チェックボックスの状態を初期化
+    document.getElementById("animationCheckbox").checked = animationEnabled;
+    document.getElementById("gridCheckbox").checked = gridEnabled;
+
     // 更新ボタンのイベントリスナー
     document.getElementById("updateButton").addEventListener("click", updateFan);
 
-    // アニメーションOn/Offボタンのイベントリスナー
-    document.getElementById("toggleAnimation").addEventListener("click", () => {
-      animationEnabled = !animationEnabled;
+    // アニメーションOn/Offチェックボックスのイベントリスナー
+    document.getElementById("animationCheckbox").addEventListener("change", () => {
+      animationEnabled = document.getElementById("animationCheckbox").checked;
+    });
+
+    // グリッド表示チェックボックスのイベントリスナー
+    document.getElementById("gridCheckbox").addEventListener("change", () => {
+      gridEnabled = document.getElementById("gridCheckbox").checked;
+      gridHelper.visible = gridEnabled; // グリッドの表示/非表示を切り替える
+
+      // グリッドの数値テキストの表示/非表示を切り替える
+      textMeshXArray.forEach(textMesh => {
+        textMesh.visible = gridEnabled;
+      });
+      textMeshZArray.forEach(textMesh => {
+        textMesh.visible = gridEnabled;
+      });
     });
 
     // STLエクスポートボタンのイベントリスナー
