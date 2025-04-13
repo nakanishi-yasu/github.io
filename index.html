@@ -23,6 +23,7 @@
   </style>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/exporters/STLExporter.js"></script>
 </head>
 <body>
   <div class="controls">
@@ -52,10 +53,12 @@
 
     <label for="bossHoleRadius">ボスの穴の直径:</label>
     <input type="number" id="bossHoleRadius" value="2"><br>
-
+    <br>
     <button id="updateButton">形状を更新</button><br>
     <br>
-    <button id="toggleAnimation">回転 on / off</button>
+    <button id="toggleAnimation">回転 on/off</button><br>
+    <br>
+    <button id="exportSTL">STL download</button>
   </div>
 
   <script>
@@ -218,6 +221,11 @@
       animationEnabled = !animationEnabled;
     });
 
+    // STLエクスポートボタンのイベントリスナー
+    document.getElementById("exportSTL").addEventListener("click", () => {
+      exportSTL();
+    });
+
     function animate() {
       requestAnimationFrame(animate);
 
@@ -238,6 +246,27 @@
       camera.updateProjectionMatrix();
       renderer.setSize(newWidth, newHeight);
     });
+
+    function exportSTL() {
+      if (!fan) {
+        alert("扇風機が生成されていません。");
+        return;
+      }
+
+      const exporter = new THREE.STLExporter();
+
+      // エクスポート実行
+      const stlString = exporter.parse(fan);
+
+      // ダウンロード処理
+      const blob = new Blob([stlString], { type: 'text/plain' });
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(blob);
+      link.download = 'fan.stl';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
   </script>
 </body>
 </html>
