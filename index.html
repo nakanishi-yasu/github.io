@@ -30,8 +30,8 @@
     <label for="numBlades">羽根の枚数:</label>
     <input type="number" id="numBlades" value="4"><br>
 
-    <label for="bladeHeight">羽根の長さ:</label>
-    <input type="number" id="bladeHeight" value="100"><br>
+    <label for="bladeLength">羽根の長さ:</label>
+    <input type="number" id="bladeLength" value="100"><br>
 
     <label for="bladeThickness">羽根の厚さ:</label>
     <input type="number" id="bladeThickness" value="2"><br>
@@ -129,9 +129,11 @@
         bladeMesh.rotation.y = angle; // 羽根を円周に沿って配置
         bladeMesh.rotation.z = Math.PI / 2; // 羽根の長手方向を半径方向に向ける
 
+        const bossOffset = 1.5; // 羽根をボスに没入する量
+
         // 羽根の位置を調整
-        bladeMesh.position.x = - bladeOffset * Math.cos(angle); // ボスの半径に基づいて羽根の位置を計算
-        bladeMesh.position.z = bladeOffset * Math.sin(angle); // ボスの半径に基づいて羽根の位置を計算
+        bladeMesh.position.x = - (bladeOffset - bossOffset) * Math.cos(angle); // ボスの半径に基づいて羽根の位置を計算
+        bladeMesh.position.z = (bladeOffset - bossOffset) * Math.sin(angle); // ボスの半径に基づいて羽根の位置を計算
         bladeMesh.position.y = - bossHeight + thickness / 2; // 羽根の位置をボスの高さに合わせる
         // bladeMesh.position.y = bossHeight / 2 - thickness / 2; // 羽根の軸線をボスの高さの真ん中に配置
 
@@ -175,13 +177,13 @@
       return bossMesh;
     }
 
-    function generateFan(bossDiameter, bossHeight, bossHoleRadius, bladeHeight, bladeThickness, bladeTopWidth, bladeBottomWidth, bladeTiltAngleDeg, numBlades) {
+    function generateFan(bossDiameter, bossHeight, bossHoleRadius, bladeLength, bladeThickness, bladeTopWidth, bladeBottomWidth, bladeTiltAngleDeg, numBlades) {
       //const numBlades = 4; // 羽根の数は固定とします (必要であれば入力できるように変更してください)
       const bossRadius = bossDiameter / 2;
       const fanRadius = bossRadius; // 羽根の配置半径を調整
       //const fanRadius = bossRadius + bladeBottomWidth / 2; // 羽根の配置半径を調整
 
-      const fanBlades = createFanBlades(numBlades, bladeTopWidth, bladeBottomWidth, bladeHeight, bladeThickness, bladeTiltAngleDeg, fanRadius);
+      const fanBlades = createFanBlades(numBlades, bladeTopWidth, bladeBottomWidth, bladeLength, bladeThickness, bladeTiltAngleDeg, fanRadius);
       const fanBoss = createBoss(bossDiameter / 2, bossHeight, bossHoleRadius / 2);
 
       const newFan = new THREE.Group();
@@ -195,18 +197,21 @@
       const bossDiameter = parseFloat(document.getElementById("bossDiameter").value);
       const bossHeight = parseFloat(document.getElementById("bossHeight").value);
       const bossHoleRadius = parseFloat(document.getElementById("bossHoleRadius").value);
-      const bladeHeight = parseFloat(document.getElementById("bladeHeight").value);
+      const bladeLengthInit = parseFloat(document.getElementById("bladeLength").value);
       const bladeThickness = parseFloat(document.getElementById("bladeThickness").value);
       const bladeTopWidth = parseFloat(document.getElementById("bladeTopWidth").value);
       const bladeBottomWidth = parseFloat(document.getElementById("bladeBottomWidth").value);
       const bladeTiltAngleDeg = parseFloat(document.getElementById("bladeTiltAngleDeg").value);
       const numBlades = parseFloat(document.getElementById("numBlades").value);
 
+      const bossOffset = 1.5; // 羽根をボスに没入する量。このため，モデルでは羽根の根元の幅が設定値より大きくなる。
+      const bladeLength = bladeLengthInit + bossOffset; // 羽根の長さをボスへの没入量に基づいて調整
+      
       if (fan) {
         scene.remove(fan);
       }
 
-      fan = generateFan(bossDiameter, bossHeight, bossHoleRadius, bladeHeight, bladeThickness, bladeTopWidth, bladeBottomWidth, bladeTiltAngleDeg, numBlades);
+      fan = generateFan(bossDiameter, bossHeight, bossHoleRadius, bladeLength, bladeThickness, bladeTopWidth, bladeBottomWidth, bladeTiltAngleDeg, numBlades);
       scene.add(fan);
     }
 
