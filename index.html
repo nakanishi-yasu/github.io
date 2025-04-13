@@ -76,6 +76,7 @@
     // 背景色を設定
     const renderer = new THREE.WebGLRenderer({ antialias: true });
     renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.setClearColor(0xffffff); // 背景色を白に設定
     document.body.appendChild(renderer.domElement);
 
     camera.position.z = 300; // カメラの位置を少し遠ざける
@@ -88,6 +89,50 @@
 
     let fan; // 扇風機全体のグループ
     let animationEnabled = true; // アニメーションの状態を制御する変数
+
+    // X-Z平面にグリッドを表示
+    const gridSize = 250; // グリッドのサイズ
+    const gridDivisions = 10; // グリッドの分割数
+    const gridHelper = new THREE.GridHelper(gridSize, gridDivisions);
+    scene.add(gridHelper);
+
+    // グリッドに数値を表示
+    const fontLoader = new THREE.FontLoader();
+    fontLoader.load('https://threejs.org/examples/fonts/helvetiker_regular.typeface.json', function (font) {
+      const textColor = 0x000000; // テキストの色
+      const textSize = 5; // テキストのサイズ
+
+      for (let i = -gridDivisions / 2; i <= gridDivisions / 2; i++) {
+        const textValue = i * (gridSize / gridDivisions);
+
+        const textGeometry = new THREE.TextGeometry(textValue.toString(), {
+          font: font,
+          size: textSize,
+          height: 0.1,
+          curveSegments: 12,
+          bevelEnabled: false
+        });
+
+        const textMaterial = new THREE.MeshBasicMaterial({ color: textColor });
+        const textMeshX = new THREE.Mesh(textGeometry, textMaterial);
+        const textMeshZ = new THREE.Mesh(textGeometry, textMaterial);
+
+        // X軸方向にテキストを配置
+        textMeshX.position.x = textValue;
+        textMeshX.position.y = -2; // グリッドから少し浮かせる
+        textMeshX.position.z = 0;
+        textMeshX.rotation.x = -Math.PI / 2; // X軸を中心に90度回転
+
+        // Z軸方向にテキストを配置
+        textMeshZ.position.x = 0;
+        textMeshZ.position.y = -2; // グリッドから少し浮かせる
+        textMeshZ.position.z = textValue;
+        textMeshZ.rotation.x = -Math.PI / 2; // X軸を中心に90度回転
+
+        scene.add(textMeshX);
+        scene.add(textMeshZ);
+      }
+    });
 
     function createFanBladeGeometry(topWidth, bottomWidth, height, thickness, tiltAngleRad) {
       const shape = new THREE.Shape();
@@ -206,12 +251,16 @@
 
       const bossOffset = 1.5; // 羽根をボスに没入する量。このため，モデルでは羽根の根元の幅が設定値より大きくなる。
       const bladeLength = bladeLengthInit + bossOffset; // 羽根の長さをボスへの没入量に基づいて調整
-      
+
       if (fan) {
         scene.remove(fan);
       }
 
       fan = generateFan(bossDiameter, bossHeight, bossHoleRadius, bladeLength, bladeThickness, bladeTopWidth, bladeBottomWidth, bladeTiltAngleDeg, numBlades);
+
+      // グリッドの位置をボスの底面に合わせる
+      gridHelper.position.y = -bossHeight;
+
       scene.add(fan);
     }
 
