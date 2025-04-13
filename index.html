@@ -107,7 +107,8 @@
       const bossDiameter = parseFloat(document.getElementById("bossDiameter").value);
       const bossHeight = parseFloat(document.getElementById("bossHeight").value);
       const bossRadius = bossDiameter / 2;
-      const bladeOffset = bossRadius + bottomWidth / 2; // 羽根の配置半径
+      const bladeOffset = bossRadius; // 羽根の配置半径
+      //const bladeOffset = bossRadius + bottomWidth / 2; // 羽根の配置半径
 
       for (let i = 0; i < numBlades; i++) {
         const bladeGeometry = createFanBladeGeometry(topWidth, bottomWidth, height, thickness, tiltAngleRad);
@@ -120,8 +121,8 @@
         bladeMesh.rotation.z = Math.PI / 2; // 羽根の長手方向を半径方向に向ける
 
         // 羽根の位置を調整
-        //bladeMesh.position.x = bladeOffset * Math.cos(angle);
-        //bladeMesh.position.z = bladeOffset * Math.sin(angle);
+        bladeMesh.position.x = - bladeOffset * Math.cos(angle); // ボスの半径に基づいて羽根の位置を計算
+        bladeMesh.position.z = bladeOffset * Math.sin(angle); // ボスの半径に基づいて羽根の位置を計算
         bladeMesh.position.y = - bossHeight + thickness / 2; // 羽根の位置をボスの高さに合わせる
         // bladeMesh.position.y = bossHeight / 2 - thickness / 2; // 羽根の軸線をボスの高さの真ん中に配置
 
@@ -166,10 +167,10 @@
     }
 
     function generateFan(bossDiameter, bossHeight, bossHoleRadius, bladeHeight, bladeThickness, bladeTopWidth, bladeBottomWidth, bladeTiltAngleDeg) {
-      const numBlades = 6; // 羽根の数は固定とします (必要であれば入力できるように変更してください)
+      const numBlades = 4; // 羽根の数は固定とします (必要であれば入力できるように変更してください)
       const bossRadius = bossDiameter / 2;
-      //const fanRadius = bossRadius + bladeBottomWidth / 2; // 羽根の配置半径を調整
       const fanRadius = bossRadius; // 羽根の配置半径を調整
+      //const fanRadius = bossRadius + bladeBottomWidth / 2; // 羽根の配置半径を調整
 
       const fanBlades = createFanBlades(numBlades, bladeTopWidth, bladeBottomWidth, bladeHeight, bladeThickness, bladeTiltAngleDeg, fanRadius);
       const fanBoss = createBoss(bossDiameter / 2, bossHeight, bossHoleRadius / 2);
@@ -208,7 +209,7 @@
     function animate() {
       requestAnimationFrame(animate);
       if (fan) {
-        fan.rotation.y += 0.01;
+        fan.rotation.y += 0.00;
       }
       controls.update(); // controlsを更新
       renderer.render(scene, camera);
