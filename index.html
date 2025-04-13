@@ -26,14 +26,8 @@
 </head>
 <body>
   <div class="controls">
-    <label for="bossDiameter">ボスの直径:</label>
-    <input type="number" id="bossDiameter" value="40"><br>
-
-    <label for="bossHeight">ボスの高さ:</label>
-    <input type="number" id="bossHeight" value="20"><br>
-
-    <label for="bossHoleRadius">ボスの穴の直径:</label>
-    <input type="number" id="bossHoleRadius" value="2"><br>
+    <label for="numBlades">羽根の枚数:</label>
+    <input type="number" id="numBlades" value="4"><br>
 
     <label for="bladeHeight">羽根の長さ:</label>
     <input type="number" id="bladeHeight" value="100"><br>
@@ -50,7 +44,18 @@
     <label for="bladeTiltAngleDeg">羽根の角度:</label>
     <input type="number" id="bladeTiltAngleDeg" value="30"><br>
 
-    <button id="updateButton">形状を更新</button>
+    <label for="bossDiameter">ボスの直径:</label>
+    <input type="number" id="bossDiameter" value="40"><br>
+
+    <label for="bossHeight">ボスの高さ:</label>
+    <input type="number" id="bossHeight" value="20"><br>
+
+    <label for="bossHoleRadius">ボスの穴の直径:</label>
+    <input type="number" id="bossHoleRadius" value="2"><br>
+
+    <button id="updateButton">形状を更新</button><br>
+    <br>
+    <button id="toggleAnimation">回転 on / off</button>
   </div>
 
   <script>
@@ -79,6 +84,7 @@
     controls.enableZoom = true;
 
     let fan; // 扇風機全体のグループ
+    let animationEnabled = true; // アニメーションの状態を制御する変数
 
     function createFanBladeGeometry(topWidth, bottomWidth, height, thickness, tiltAngleRad) {
       const shape = new THREE.Shape();
@@ -166,8 +172,8 @@
       return bossMesh;
     }
 
-    function generateFan(bossDiameter, bossHeight, bossHoleRadius, bladeHeight, bladeThickness, bladeTopWidth, bladeBottomWidth, bladeTiltAngleDeg) {
-      const numBlades = 4; // 羽根の数は固定とします (必要であれば入力できるように変更してください)
+    function generateFan(bossDiameter, bossHeight, bossHoleRadius, bladeHeight, bladeThickness, bladeTopWidth, bladeBottomWidth, bladeTiltAngleDeg, numBlades) {
+      //const numBlades = 4; // 羽根の数は固定とします (必要であれば入力できるように変更してください)
       const bossRadius = bossDiameter / 2;
       const fanRadius = bossRadius; // 羽根の配置半径を調整
       //const fanRadius = bossRadius + bladeBottomWidth / 2; // 羽根の配置半径を調整
@@ -191,12 +197,13 @@
       const bladeTopWidth = parseFloat(document.getElementById("bladeTopWidth").value);
       const bladeBottomWidth = parseFloat(document.getElementById("bladeBottomWidth").value);
       const bladeTiltAngleDeg = parseFloat(document.getElementById("bladeTiltAngleDeg").value);
+      const numBlades = parseFloat(document.getElementById("numBlades").value);
 
       if (fan) {
         scene.remove(fan);
       }
 
-      fan = generateFan(bossDiameter, bossHeight, bossHoleRadius, bladeHeight, bladeThickness, bladeTopWidth, bladeBottomWidth, bladeTiltAngleDeg);
+      fan = generateFan(bossDiameter, bossHeight, bossHoleRadius, bladeHeight, bladeThickness, bladeTopWidth, bladeBottomWidth, bladeTiltAngleDeg, numBlades);
       scene.add(fan);
     }
 
@@ -206,11 +213,18 @@
     // 更新ボタンのイベントリスナー
     document.getElementById("updateButton").addEventListener("click", updateFan);
 
+    // アニメーションOn/Offボタンのイベントリスナー
+    document.getElementById("toggleAnimation").addEventListener("click", () => {
+      animationEnabled = !animationEnabled;
+    });
+
     function animate() {
       requestAnimationFrame(animate);
-      if (fan) {
-        fan.rotation.y += 0.00;
+
+      if (animationEnabled && fan) {
+        fan.rotation.y += 0.01;
       }
+
       controls.update(); // controlsを更新
       renderer.render(scene, camera);
     }
@@ -227,3 +241,4 @@
   </script>
 </body>
 </html>
+<!-- </html> -->
