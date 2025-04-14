@@ -25,6 +25,7 @@
   <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/exporters/STLExporter.js"></script>
 </head>
+
 <body>
   <div class="controls">
     <label for="numBlades">羽根の枚数:</label>
@@ -158,6 +159,11 @@
       shape.lineTo( topWidth / 2, height);
       shape.lineTo(-topWidth / 2, height);
       shape.lineTo(-bottomWidth / 2, 0);
+      // shape.moveTo(0, 0);
+      // shape.lineTo(bottomWidth, 0);
+      // shape.lineTo(topWidth, height);
+      // shape.lineTo(0, height);
+      // shape.lineTo(0, 0);
 
       const extrudeSettings = {
         steps: 1,
@@ -166,6 +172,8 @@
       };
 
       const geometry = new THREE.ExtrudeGeometry(shape, extrudeSettings);
+      bladeThickOffset = thickness / 2; // 羽根の厚みを考慮してオフセットを計算
+      geometry.translate(0, 0, -bladeThickOffset); // 羽根の位置を調整
       geometry.rotateY(tiltAngleRad);
       return geometry;
     }
@@ -315,6 +323,7 @@
       exportSTL();
     });
 
+    // アニメーションループ
     function animate() {
       requestAnimationFrame(animate);
 
@@ -335,7 +344,8 @@
       camera.updateProjectionMatrix();
       renderer.setSize(newWidth, newHeight);
     });
-
+  
+    // STLエクスポート関数
     function exportSTL() {
       if (!fan) {
         alert("扇風機が生成されていません。");
@@ -356,7 +366,9 @@
       link.click();
       document.body.removeChild(link);
     }
-  </script>
+
+
+</script>
 </body>
 </html>
 <!-- </html> -->
