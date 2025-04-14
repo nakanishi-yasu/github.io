@@ -133,14 +133,14 @@
 
         // X軸方向にテキストを配置
         textMeshX.position.x = textValue;
-        textMeshX.position.y = -bossHeight + 2; // グリッドから少し浮かせる
+        textMeshX.position.y = -bossHeight - 2; // グリッドから少し浮かせる
         textMeshX.position.z = 0;
         textMeshX.rotation.x = -Math.PI / 2; // X軸を中心に90度回転
 
         // Z軸方向にテキストを配置
         textMeshZ.position.x = 0;
-        textMeshZ.position.y = -bossHeight + 2; // グリッドから少し浮かせる
-        textMeshZ.position.z = textValue;
+        textMeshZ.position.y = -bossHeight - 2; // グリッドから少し浮かせる
+        textMeshZ.position.z = -textValue;
         textMeshZ.rotation.x = -Math.PI / 2; // X軸を中心に90度回転
 
         scene.add(textMeshX);
@@ -153,11 +153,11 @@
 
     function createFanBladeGeometry(topWidth, bottomWidth, height, thickness, tiltAngleRad) {
       const shape = new THREE.Shape();
-      shape.moveTo(0, 0);
-      shape.lineTo(bottomWidth, 0);
-      shape.lineTo(topWidth, height);
-      shape.lineTo(0, height);
-      shape.lineTo(0, 0);
+      shape.moveTo(-bottomWidth / 2, 0);
+      shape.lineTo( bottomWidth / 2, 0);
+      shape.lineTo( topWidth / 2, height);
+      shape.lineTo(-topWidth / 2, height);
+      shape.lineTo(-bottomWidth / 2, 0);
 
       const extrudeSettings = {
         steps: 1,
@@ -196,7 +196,7 @@
         // 羽根の位置を調整
         bladeMesh.position.x = - (bladeOffset - bossOffset) * Math.cos(angle); // ボスの半径に基づいて羽根の位置を計算
         bladeMesh.position.z = (bladeOffset - bossOffset) * Math.sin(angle); // ボスの半径に基づいて羽根の位置を計算
-        bladeMesh.position.y = - bossHeight + thickness / 2; // 羽根の位置をボスの高さに合わせる
+        bladeMesh.position.y = - bossHeight / 2; // 羽根の位置をボスの高さに合わせる
         // bladeMesh.position.y = bossHeight / 2 - thickness / 2; // 羽根の軸線をボスの高さの真ん中に配置
 
         blades.add(bladeMesh);
