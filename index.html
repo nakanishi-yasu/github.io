@@ -51,8 +51,8 @@
     <label for="bossHeight">ボスの高さ:</label>
     <input type="number" id="bossHeight" value="20"><br>
 
-    <label for="bossHoleRadius">ボスの穴の直径:</label>
-    <input type="number" id="bossHoleRadius" value="2"><br>
+    <label for="bossHoleDiameter">ボスの穴の直径:</label>
+    <input type="number" id="bossHoleDiameter" value="2"><br>
     <br>
     <button id="updateButton">形状を更新</button><br>
     <br>
@@ -191,7 +191,7 @@
         bladeMesh.rotation.y = angle; // 羽根を円周に沿って配置
         bladeMesh.rotation.z = Math.PI / 2; // 羽根の長手方向を半径方向に向ける
 
-        const bossOffset = 1.5; // 羽根をボスに没入する量
+        const bossOffset = 2.0; // 羽根をボスに没入する量
 
         // 羽根の位置を調整
         bladeMesh.position.x = - (bladeOffset - bossOffset) * Math.cos(angle); // ボスの半径に基づいて羽根の位置を計算
@@ -218,7 +218,7 @@
         // 穴用の円柱を作成
         const holeGeometry = new THREE.CylinderGeometry(holeRadius, holeRadius, height + 0.1, 32);
         const holeMesh = new THREE.Mesh(holeGeometry, material);
-        holeMesh.position.y = -height / 2;
+        holeMesh.position.y = -height /2;
 
         // 穴を表現するために透明な材質を使用
         const transparentMaterial = new THREE.MeshPhongMaterial({
@@ -239,14 +239,14 @@
       return bossMesh;
     }
 
-    function generateFan(bossDiameter, bossHeight, bossHoleRadius, bladeLength, bladeThickness, bladeTopWidth, bladeBottomWidth, bladeTiltAngleDeg, numBlades) {
+    function generateFan(bossDiameter, bossHeight, bossHoleDiameter, bladeLength, bladeThickness, bladeTopWidth, bladeBottomWidth, bladeTiltAngleDeg, numBlades) {
       //const numBlades = 4; // 羽根の数は固定とします (必要であれば入力できるように変更してください)
       const bossRadius = bossDiameter / 2;
       const fanRadius = bossRadius; // 羽根の配置半径を調整
       //const fanRadius = bossRadius + bladeBottomWidth / 2; // 羽根の配置半径を調整
 
       const fanBlades = createFanBlades(numBlades, bladeTopWidth, bladeBottomWidth, bladeLength, bladeThickness, bladeTiltAngleDeg, fanRadius);
-      const fanBoss = createBoss(bossDiameter / 2, bossHeight, bossHoleRadius / 2);
+      const fanBoss = createBoss(bossDiameter / 2, bossHeight, bossHoleDiameter / 2);
 
       const newFan = new THREE.Group();
       newFan.add(fanBlades);
@@ -258,7 +258,7 @@
     function updateFan() {
       const bossDiameter = parseFloat(document.getElementById("bossDiameter").value);
       const bossHeight = parseFloat(document.getElementById("bossHeight").value);
-      const bossHoleRadius = parseFloat(document.getElementById("bossHoleRadius").value);
+      const bossHoleDiameter = parseFloat(document.getElementById("bossHoleDiameter").value);
       const bladeLengthInit = parseFloat(document.getElementById("bladeLength").value);
       const bladeThickness = parseFloat(document.getElementById("bladeThickness").value);
       const bladeTopWidth = parseFloat(document.getElementById("bladeTopWidth").value);
@@ -266,14 +266,14 @@
       const bladeTiltAngleDeg = parseFloat(document.getElementById("bladeTiltAngleDeg").value);
       const numBlades = parseFloat(document.getElementById("numBlades").value);
 
-      const bossOffset = 1.5; // 羽根をボスに没入する量。このため，モデルでは羽根の根元の幅が設定値より大きくなる。
+      const bossOffset = 2.0; // 羽根をボスに没入する量。このため，モデルでは羽根の根元の幅が設定値より大きくなる。
       const bladeLength = bladeLengthInit + bossOffset; // 羽根の長さをボスへの没入量に基づいて調整
 
       if (fan) {
         scene.remove(fan);
       }
 
-      fan = generateFan(bossDiameter, bossHeight, bossHoleRadius, bladeLength, bladeThickness, bladeTopWidth, bladeBottomWidth, bladeTiltAngleDeg, numBlades);
+      fan = generateFan(bossDiameter, bossHeight, bossHoleDiameter, bladeLength, bladeThickness, bladeTopWidth, bladeBottomWidth, bladeTiltAngleDeg, numBlades);
 
       // グリッドの位置をボスの底面に合わせる
       gridHelper.position.y = -bossHeight;
